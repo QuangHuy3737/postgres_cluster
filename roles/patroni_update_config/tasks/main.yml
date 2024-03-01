@@ -1,0 +1,29 @@
+---
+
+# Patroni configure
+- name: Make sure that conf directory exists
+  ansible.builtin.file:
+    path: /etc/patroni
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0750"
+  tags: patroni, patroni_conf
+
+
+- name: Update conf file "/etc/patroni/patroni.yml"
+  ansible.builtin.template:
+    src: ../templates/patroni.yml.j2
+    dest: /etc/patroni/patroni.yml
+    owner: postgres
+    group: postgres
+    mode: "0640"
+  tags: patroni, patroni_conf
+
+
+# Update pg_hba.conf
+- ansible.builtin.import_tasks: pg_hba.yml
+  tags: patroni, patroni_conf, pg_hba, pg_hba_generate
+
+
+...

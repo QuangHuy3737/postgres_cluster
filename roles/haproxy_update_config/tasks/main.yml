@@ -1,0 +1,32 @@
+---
+
+- name: Gather facts for hosts postres_cluster
+  ansible.builtin.setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['postgres_cluster'] }}"
+  when: hostvars[groups['postgres_cluster'][0]].ansible_hostname is not defined
+
+
+# Configure
+
+- name: Update conf file "/etc/haproxy/haproxy.cfg"
+  ansible.builtin.template:
+    src: templates/haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: haproxy
+    group: haproxy
+  notify: "restart haproxy"
+  tags: haproxy, haproxy_conf, load_balancing
+
+- name: Update systemd service file "/etc/systemd/system/haproxy.service"
+  ansible.builtin.template:
+    src: templates/haproxy.service.j2
+    dest: /etc/systemd/system/haproxy.service
+    owner: haproxy
+    group: haproxy
+  notify: "restart haproxy"
+  tags: haproxy, haproxy_service, load_balancing
+
+
+...

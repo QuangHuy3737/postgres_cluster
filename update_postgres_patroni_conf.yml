@@ -1,0 +1,23 @@
+---
+
+- name: "Update config patroni and postgres"
+  hosts: postgres_cluster
+  become: true
+  become_method: sudo
+  gather_facts: true
+  any_errors_fatal: true
+  environment: "{{ proxy_env | default({}) }}"
+  pre_tasks:
+    - name: Include main variables
+      ansible.builtin.include_vars: "vars/main.yml"
+    - name: Include OS-specific variables
+      ansible.builtin.include_vars: "vars/{{ ansible_os_family }}.yml"
+  
+  roles:
+      - role: patroni_update_config
+
+    
+  tags:
+    - update
+    - update-patroni-postgres
+
